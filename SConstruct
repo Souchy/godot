@@ -420,6 +420,8 @@ env_base["debug_symbols"] = methods.get_cmdline_bool("debug_symbols", env_base.d
 
 if env_base.editor_build:
     env_base.Append(CPPDEFINES=["TOOLS_ENABLED"])
+    
+print("Hi python " + str(env_base.editor_build))
 
 if env_base.debug_features:
     # DEBUG_ENABLED enables debugging *features* and debug-only code, which is intended
