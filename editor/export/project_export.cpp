@@ -753,7 +753,7 @@ void ProjectExportDialog::_fill_resource_tree() {
 	include_label->show();
 	include_margin->show();
 
-	_fill_tree(EditorFileSystem::get_singleton()->get_filesystem(), root, current, f);
+	_fill_tree(EditorFileSystem::get_singleton()->get_filesystemDir(), root, current, f);
 
 	if (f == EditorExportPreset::EXPORT_CUSTOMIZED) {
 		_propagate_file_export_mode(include_files->get_root(), EditorExportPreset::MODE_FILE_NOT_CUSTOMIZED);

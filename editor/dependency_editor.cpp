@@ -124,7 +124,7 @@ void DependencyEditor::_fix_and_find(EditorFileSystemDirectory *efsd, HashMap<St
 }
 
 void DependencyEditor::_fix_all() {
-	if (!EditorFileSystem::get_singleton()->get_filesystem()) {
+	if (!EditorFileSystem::get_singleton()->get_filesystemDir()) {
 		return;
 	}
 
@@ -139,7 +139,7 @@ void DependencyEditor::_fix_all() {
 		candidates[base][E] = "";
 	}
 
-	_fix_and_find(EditorFileSystem::get_singleton()->get_filesystem(), candidates);
+	_fix_and_find(EditorFileSystem::get_singleton()->get_filesystemDir(), candidates);
 
 	HashMap<String, String> remaps;
 
@@ -386,7 +386,7 @@ void DependencyEditorOwners::_fill_owners(EditorFileSystemDirectory *efsd) {
 void DependencyEditorOwners::show(const String &p_path) {
 	editing = p_path;
 	owners->clear();
-	_fill_owners(EditorFileSystem::get_singleton()->get_filesystem());
+	_fill_owners(EditorFileSystem::get_singleton()->get_filesystemDir());
 	popup_centered_ratio(0.3);
 
 	set_title(vformat(TTR("Owners of: %s (Total: %d)"), p_path.get_file(), owners->get_item_count()));
@@ -548,7 +548,7 @@ void DependencyRemoveDialog::show(const Vector<String> &p_folders, const Vector<
 	}
 
 	Vector<RemovedDependency> removed_deps;
-	_find_all_removed_dependencies(EditorFileSystem::get_singleton()->get_filesystem(), removed_deps);
+	_find_all_removed_dependencies(EditorFileSystem::get_singleton()->get_filesystemDir(), removed_deps);
 	_find_localization_remaps_of_removed_files(removed_deps);
 	removed_deps.sort();
 	if (removed_deps.is_empty()) {
@@ -817,10 +817,10 @@ bool OrphanResourcesDialog::_fill_owners(EditorFileSystemDirectory *efsd, HashMa
 
 void OrphanResourcesDialog::refresh() {
 	HashMap<String, int> refs;
-	_fill_owners(EditorFileSystem::get_singleton()->get_filesystem(), refs, nullptr);
+	_fill_owners(EditorFileSystem::get_singleton()->get_filesystemDir(), refs, nullptr);
 	files->clear();
 	TreeItem *root = files->create_item();
-	_fill_owners(EditorFileSystem::get_singleton()->get_filesystem(), refs, root);
+	_fill_owners(EditorFileSystem::get_singleton()->get_filesystemDir(), refs, root);
 }
 
 void OrphanResourcesDialog::show() {

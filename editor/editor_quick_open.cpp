@@ -48,7 +48,7 @@ void EditorQuickOpen::popup_dialog(const String &p_base, bool p_enable_multi, bo
 		popup_centered_clamped(Size2(600, 440) * EDSCALE, 0.8f);
 	}
 
-	EditorFileSystemDirectory *efsd = EditorFileSystem::get_singleton()->get_filesystem();
+	EditorFileSystemDirectory *efsd = EditorFileSystem::get_singleton()->get_filesystemDir();
 	_build_search_cache(efsd);
 
 	if (p_dont_clear) {

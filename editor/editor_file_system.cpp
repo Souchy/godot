@@ -46,6 +46,8 @@
 #include "editor/editor_settings.h"
 
 EditorFileSystem *EditorFileSystem::singleton = nullptr;
+EditorFileSystem *EditorFileSystem::souchySystem = nullptr;
+List<EditorFileSystem *> EditorFileSystem::systems;
 //the name is the version, to keep compatibility with different versions of Godot
 #define CACHE_FILE_NAME "filesystem_cache8"
 
@@ -104,7 +106,7 @@ String EditorFileSystemDirectory::get_path() const {
 		d = d->parent;
 	}
 
-	return "res://" + p;
+	return this->souchyResPath + p;
 }
 
 String EditorFileSystemDirectory::get_file_path(int p_idx) const {
@@ -115,7 +117,7 @@ String EditorFileSystemDirectory::get_file_path(int p_idx) const {
 		d = d->parent;
 	}
 
-	return "res://" + file;
+	return this->souchyResPath + file;
 }
 
 Vector<String> EditorFileSystemDirectory::get_file_deps(int p_idx) const {
@@ -224,6 +226,9 @@ void EditorFileSystem::_scan_filesystem() {
 	file_cache.clear();
 
 	String project = ProjectSettings::get_singleton()->get_resource_path();
+	// if (this == souchySystem) {
+	// 	project = "C:/Robyn/temp/";
+	// }
 
 	String fscache = EditorPaths::get_singleton()->get_project_settings_dir().path_join(CACHE_FILE_NAME);
 	{
@@ -315,7 +320,8 @@ void EditorFileSystem::_scan_filesystem() {
 		d->remove(update_cache); //bye bye update cache
 	}
 
-	EditorProgressBG scan_progress("efs", "ScanFS", 1000);
+
+	EditorProgressBG scan_progress("efs" + this->souchyResPath, "ScanFS" + this->souchyResPath, 1000);
 
 	ScanProgress sp;
 	sp.low = 0;
@@ -324,9 +330,10 @@ void EditorFileSystem::_scan_filesystem() {
 
 	new_filesystem = memnew(EditorFileSystemDirectory);
 	new_filesystem->parent = nullptr;
+	new_filesystem->souchyResPath = filesystem->souchyResPath;
 
-	Ref<DirAccess> d = DirAccess::create(DirAccess::ACCESS_RESOURCES);
-	d->change_dir("res://");
+	Ref<DirAccess> d = DirAccess::create(fileAccessType);
+	d->change_dir(souchyResPath);
 	_scan_new_dir(new_filesystem, d, sp);
 
 	file_cache.clear(); //clear caches, no longer needed
@@ -721,14 +728,14 @@ void EditorFileSystem::scan() {
 	if (!use_threads) {
 		scanning = true;
 		scan_total = 0;
-		_scan_filesystem();
+		_scan_filesystem(); // scan
 		if (filesystem) {
 			memdelete(filesystem);
 		}
 		//file_type_cache.clear();
 		filesystem = new_filesystem;
 		new_filesystem = nullptr;
-		_update_scan_actions();
+		_update_scan_actions(); // reimport
 		scanning = false;
 		_update_pending_script_classes();
 		emit_signal(SNAME("filesystem_changed"));
@@ -812,7 +819,7 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, Ref<DirAc
 				da->change_dir(cd); //avoid recursion
 			} else {
 				EditorFileSystemDirectory *efd = memnew(EditorFileSystemDirectory);
-
+				efd->souchyResPath = p_dir->souchyResPath;
 				efd->parent = p_dir;
 				efd->name = E->get();
 
@@ -1008,7 +1015,7 @@ void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const 
 					}
 
 					EditorFileSystemDirectory *efd = memnew(EditorFileSystemDirectory);
-
+					efd->souchyResPath = p_dir->souchyResPath;
 					efd->parent = p_dir;
 					efd->name = f;
 					Ref<DirAccess> d = DirAccess::create(DirAccess::ACCESS_RESOURCES);
@@ -1304,7 +1311,7 @@ float EditorFileSystem::get_scanning_progress() const {
 	return scan_total;
 }
 
-EditorFileSystemDirectory *EditorFileSystem::get_filesystem() {
+EditorFileSystemDirectory *EditorFileSystem::get_filesystemDir() {
 	return filesystem;
 }
 
@@ -1349,10 +1356,11 @@ bool EditorFileSystem::_find_file(const String &p_file, EditorFileSystemDirector
 
 	String f = ProjectSettings::get_singleton()->localize_path(p_file);
 
-	if (!f.begins_with("res://")) {
+	if (!f.begins_with(souchyResPath)) {
 		return false;
 	}
-	f = f.substr(6, f.length());
+	// f = f.substr(6, f.length());
+	f = f.substr(souchyResPath.length(), f.length());
 	f = f.replace("\\", "/");
 
 	Vector<String> path = f.split("/");
@@ -1381,7 +1389,7 @@ bool EditorFileSystem::_find_file(const String &p_file, EditorFileSystemDirector
 		if (idx == -1) {
 			//does not exist, create i guess?
 			EditorFileSystemDirectory *efsd = memnew(EditorFileSystemDirectory);
-
+			efsd->souchyResPath = fs->souchyResPath;
 			efsd->name = path[i];
 			efsd->parent = fs;
 
@@ -1454,7 +1462,7 @@ EditorFileSystemDirectory *EditorFileSystem::get_filesystem_path(const String &p
 
 	String f = ProjectSettings::get_singleton()->localize_path(p_path);
 
-	if (!f.begins_with("res://")) {
+	if (!f.begins_with(souchyResPath)) {
 		return nullptr;
 	}
 
@@ -2417,8 +2425,8 @@ void EditorFileSystem::_move_group_files(EditorFileSystemDirectory *efd, const S
 }
 
 void EditorFileSystem::move_group_file(const String &p_path, const String &p_new_path) {
-	if (get_filesystem()) {
-		_move_group_files(get_filesystem(), p_path, p_new_path);
+	if (get_filesystemDir()) {
+		_move_group_files(get_filesystemDir(), p_path, p_new_path);
 		if (group_file_cache.has(p_path)) {
 			group_file_cache.erase(p_path);
 			group_file_cache.insert(p_new_path);
@@ -2469,7 +2477,7 @@ static void _scan_extensions_dir(EditorFileSystemDirectory *d, HashSet<String> &
 	}
 }
 bool EditorFileSystem::_scan_extensions() {
-	EditorFileSystemDirectory *d = get_filesystem();
+	EditorFileSystemDirectory *d = get_filesystemDir();
 	HashSet<String> extensions;
 
 	_scan_extensions_dir(d, extensions);
@@ -2529,7 +2537,7 @@ bool EditorFileSystem::_scan_extensions() {
 }
 
 void EditorFileSystem::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get_filesystem"), &EditorFileSystem::get_filesystem);
+	ClassDB::bind_method(D_METHOD("get_filesystemDir"), &EditorFileSystem::get_filesystemDir);
 	ClassDB::bind_method(D_METHOD("is_scanning"), &EditorFileSystem::is_scanning);
 	ClassDB::bind_method(D_METHOD("get_scanning_progress"), &EditorFileSystem::get_scanning_progress);
 	ClassDB::bind_method(D_METHOD("scan"), &EditorFileSystem::scan);
@@ -2584,7 +2592,13 @@ void EditorFileSystem::remove_import_format_support_query(Ref<EditorFileSystemIm
 EditorFileSystem::EditorFileSystem() {
 	ResourceLoader::import = _resource_import;
 	reimport_on_missing_imported_files = GLOBAL_GET("editor/import/reimport_missing_imported_files");
-	singleton = this;
+
+	bool firstInstance = false;
+	if (singleton == nullptr) {
+		singleton = this;
+		get_systems().push_back(singleton);
+		firstInstance = true;
+	}
 	filesystem = memnew(EditorFileSystemDirectory); //like, empty
 	filesystem->parent = nullptr;
 
@@ -2597,6 +2611,19 @@ EditorFileSystem::EditorFileSystem() {
 	scan_total = 0;
 	MessageQueue::get_singleton()->push_callable(callable_mp(ResourceUID::get_singleton(), &ResourceUID::clear)); // Will be updated on scan.
 	ResourceSaver::set_get_resource_id_for_path(_resource_saver_get_resource_id_for_path);
+
+	// SOUCHY
+	if (!firstInstance && souchySystem == nullptr) {
+		this->set_name("SouchyFileSystem");
+		souchySystem = this;
+		souchySystem->souchyResPath = "C:/Robyn/temp/";
+		souchySystem->fileAccessType = DirAccess::ACCESS_FILESYSTEM;
+		filesystem->souchyResPath = "C:/Robyn/temp/";
+		get_systems().push_back(souchySystem);
+		// souchyDir = memnew(EditorFileSystemDirectory); //like, empty
+		// souchyDir->parent = nullptr;
+		// souchyDir->souchyResPath = "C:/Robyn/temp/";
+	}
 }
 
 EditorFileSystem::~EditorFileSystem() {

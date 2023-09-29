@@ -2659,7 +2659,7 @@ static bool _get_subscript_type(GDScriptParser::CompletionContext &p_context, co
 static void _find_call_arguments(GDScriptParser::CompletionContext &p_context, const GDScriptParser::Node *p_call, int p_argidx, HashMap<String, ScriptLanguage::CodeCompletionOption> &r_result, bool &r_forced, String &r_arghint) {
 	if (p_call->type == GDScriptParser::Node::PRELOAD) {
 		if (p_argidx == 0 && bool(EDITOR_GET("text_editor/completion/complete_file_paths"))) {
-			_get_directory_contents(EditorFileSystem::get_singleton()->get_filesystem(), r_result);
+			_get_directory_contents(EditorFileSystem::get_singleton()->get_filesystemDir(), r_result);
 		}
 
 		MethodInfo mi(PropertyInfo(Variant::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource"), "preload", PropertyInfo(Variant::STRING, "path"));
@@ -2961,7 +2961,7 @@ static void _find_call_arguments(GDScriptParser::CompletionContext &p_context, c
 		} break;
 		case GDScriptParser::COMPLETION_RESOURCE_PATH: {
 			if (EDITOR_GET("text_editor/completion/complete_file_paths")) {
-				_get_directory_contents(EditorFileSystem::get_singleton()->get_filesystem(), options);
+				_get_directory_contents(EditorFileSystem::get_singleton()->get_filesystemDir(), options);
 				r_forced = true;
 			}
 		} break;

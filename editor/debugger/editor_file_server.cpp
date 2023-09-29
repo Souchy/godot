@@ -199,7 +199,7 @@ void EditorFileServer::poll() {
 
 	HashMap<String, uint64_t> files_to_send;
 	// Scan files to send.
-	_scan_files_changed(EditorFileSystem::get_singleton()->get_filesystem(), tags, files_to_send, cached_files);
+	_scan_files_changed(EditorFileSystem::get_singleton()->get_filesystemDir(), tags, files_to_send, cached_files);
 	// Add forced export files
 	Vector<String> forced_export = EditorExportPlatform::get_forced_export_files();
 	for (int i = 0; i < forced_export.size(); i++) {

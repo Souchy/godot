@@ -879,15 +879,15 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
 
 	if (p_preset->get_export_filter() == EditorExportPreset::EXPORT_ALL_RESOURCES) {
 		//find stuff
-		_export_find_resources(EditorFileSystem::get_singleton()->get_filesystem(), paths);
+		_export_find_resources(EditorFileSystem::get_singleton()->get_filesystemDir(), paths);
 	} else if (p_preset->get_export_filter() == EditorExportPreset::EXCLUDE_SELECTED_RESOURCES) {
-		_export_find_resources(EditorFileSystem::get_singleton()->get_filesystem(), paths);
+		_export_find_resources(EditorFileSystem::get_singleton()->get_filesystemDir(), paths);
 		Vector<String> files = p_preset->get_files_to_export();
 		for (int i = 0; i < files.size(); i++) {
 			paths.erase(files[i]);
 		}
 	} else if (p_preset->get_export_filter() == EditorExportPreset::EXPORT_CUSTOMIZED) {
-		_export_find_customized_resources(p_preset, EditorFileSystem::get_singleton()->get_filesystem(), p_preset->get_file_export_mode("res://"), paths);
+		_export_find_customized_resources(p_preset, EditorFileSystem::get_singleton()->get_filesystemDir(), p_preset->get_file_export_mode("res://"), paths);
 	} else {
 		bool scenes_only = p_preset->get_export_filter() == EditorExportPreset::EXPORT_SELECTED_SCENES;
 

@@ -570,7 +570,7 @@ Node *GDScriptWorkspace::_get_owner_scene_node(String p_path) {
 	Node *owner_scene_node = nullptr;
 	List<String> owners;
 
-	_get_owners(EditorFileSystem::get_singleton()->get_filesystem(), p_path, owners);
+	_get_owners(EditorFileSystem::get_singleton()->get_filesystemDir(), p_path, owners);
 
 	for (int i = 0; i < owners.size(); i++) {
 		NodePath owner_path = owners[i];

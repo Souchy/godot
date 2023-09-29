@@ -493,7 +493,7 @@ void EditorBuildProfileManager::_detect_classes() {
 
 	HashMap<String, DetectedFile> updated_file_cache;
 
-	_find_files(EditorFileSystem::get_singleton()->get_filesystem(), previous_file_cache, updated_file_cache);
+	_find_files(EditorFileSystem::get_singleton()->get_filesystemDir(), previous_file_cache, updated_file_cache);
 
 	HashSet<StringName> used_classes;
 

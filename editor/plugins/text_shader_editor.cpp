@@ -375,7 +375,7 @@ static void _complete_include_paths_search(EditorFileSystemDirectory *p_efsd, Li
 }
 
 static void _complete_include_paths(List<ScriptLanguage::CodeCompletionOption> *r_options) {
-	_complete_include_paths_search(EditorFileSystem::get_singleton()->get_filesystem(), r_options);
+	_complete_include_paths_search(EditorFileSystem::get_singleton()->get_filesystemDir(), r_options);
 }
 
 void ShaderTextEditor::_code_complete_script(const String &p_code, List<ScriptLanguage::CodeCompletionOption> *r_options) {

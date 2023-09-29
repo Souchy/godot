@@ -247,6 +247,7 @@ bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory 
 			fi.import_broken = !p_dir->get_file_import_is_valid(i);
 			fi.modified_time = p_dir->get_file_modified_time(i);
 
+			print_line("Display1: ", fi.name);
 			file_list.push_back(fi);
 		}
 
@@ -331,6 +332,7 @@ void FileSystemDock::_update_tree(const Vector<String> &p_uncollapsed_paths, boo
 	tree_update_id++;
 	updating_tree = true;
 	TreeItem *root = tree->create_item();
+	root->set_text(0, "Root");
 
 	// Handles the favorites.
 	TreeItem *favorites_item = tree->create_item(root);
@@ -413,8 +415,16 @@ void FileSystemDock::_update_tree(const Vector<String> &p_uncollapsed_paths, boo
 	}
 
 	// Create the remaining of the tree.
-	_create_tree(root, EditorFileSystem::get_singleton()->get_filesystem(), uncollapsed_paths, p_select_in_favorites, p_unfold_path);
+	EditorFileSystemDirectory *fs = EditorFileSystem::get_singleton()->get_filesystemDir();
+	EditorFileSystemDirectory *fss = EditorFileSystem::get_souchySingleton()->get_filesystemDir();
+	_create_tree(root, fs, uncollapsed_paths, p_select_in_favorites, p_unfold_path);
+
+	TreeItem *souroot = tree->create_item();
+	souroot->set_text(0, "SouchyRoot");
+	_create_tree(souroot, fss, uncollapsed_paths, p_select_in_favorites, p_unfold_path);
+
 	tree->ensure_cursor_is_visible();
+
 	updating_tree = false;
 }
 
@@ -847,6 +857,15 @@ void FileSystemDock::_sort_file_info_list(List<FileSystemDock::FileInfo> &r_file
 }
 
 void FileSystemDock::_update_file_list(bool p_keep_selection) {
+	for (EditorFileSystem *efs : EditorFileSystem::get_systems()) {
+		// EditorFileSystem *efs = &(E);
+		_update_file_list_system(p_keep_selection, efs);
+	}
+	// _update_file_list_system(p_keep_selection, EditorFileSystem::get_singleton());
+	// _update_file_list_system(p_keep_selection, EditorFileSystem::get_souchySingleton());
+}
+
+void FileSystemDock::_update_file_list_system(bool p_keep_selection, EditorFileSystem *efs) {
 	// Register the previously selected items.
 	HashSet<String> cselection;
 	if (p_keep_selection) {
@@ -863,6 +882,8 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
 
 	String directory = current_path;
 	String file = "";
+	String str = "Old dir: " + directory;
+	print_line(str);
 
 	int thumbnail_size = EDITOR_GET("docks/filesystem/thumbnail_size");
 	thumbnail_size *= EDSCALE;
@@ -925,7 +946,8 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
 				}
 			} else {
 				int index;
-				EditorFileSystemDirectory *efd = EditorFileSystem::get_singleton()->find_file(favorite, &index);
+				// EditorFileSystemDirectory *efd = EditorFileSystem::get_singleton()->find_file(favorite, &index);
+				EditorFileSystemDirectory *efd = efs->find_file(favorite, &index);
 
 				FileInfo fi;
 				fi.name = favorite.get_file();
@@ -950,20 +972,26 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
 		if (directory.ends_with("/") && directory != "res://") {
 			directory = directory.substr(0, directory.length() - 1);
 		}
-		EditorFileSystemDirectory *efd = EditorFileSystem::get_singleton()->get_filesystem_path(directory);
+		// EditorFileSystemDirectory *efd = EditorFileSystem::get_singleton()->get_filesystem_path(directory);
+		EditorFileSystemDirectory *efd = efs->get_filesystem_path(directory);
 		if (!efd) {
 			directory = current_path.get_base_dir();
 			file = current_path.get_file();
-			efd = EditorFileSystem::get_singleton()->get_filesystem_path(directory);
+			efd = efs->get_filesystem_path(directory);
 		}
 		if (!efd) {
 			return;
 		}
 
+		// String souchypath = "C:/Robyn/temp";
+		// EditorFileSystemDirectory *souchydir = EditorFileSystem::get_singleton()->get_filesystem_path(souchypath);
+		// EditorFileSystemDirectory *souchydir = sousystem;
+		print_line("Lets look at both folders here: res: ", efd->get_file_count());
+
 		if (searched_string.length() > 0) {
 			// Display the search results.
 			// Limit the number of results displayed to avoid an infinite loop.
-			_search(EditorFileSystem::get_singleton()->get_filesystem(), &file_list, 10000);
+			_search(efs->get_filesystemDir(), &file_list, 10000);
 		} else {
 			if (display_mode == DISPLAY_MODE_TREE_ONLY || always_show_folders) {
 				// Display folders in the list.
@@ -1004,9 +1032,28 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
 				fi.type = efd->get_file_type(i);
 				fi.import_broken = !efd->get_file_import_is_valid(i);
 				fi.modified_time = efd->get_file_modified_time(i);
-
 				file_list.push_back(fi);
+				print_line("file res: " + fi.name);
 			}
+
+			// if (!souchydir) {
+			// 	print_line("No souchy dir");
+			// 	return;
+			// }
+			// print_line("Lets look at both folders here, vs souchy: ", souchydir->get_file_count());
+
+			// // Display the folder content.
+			// for (int i = 0; i < souchydir->get_file_count(); i++) {
+			// 	FileInfo fi;
+			// 	fi.name = souchydir->get_file(i);
+			// 	fi.path = souchypath.path_join(fi.name);
+			// 	fi.type = souchydir->get_file_type(i);
+			// 	fi.import_broken = !souchydir->get_file_import_is_valid(i);
+			// 	fi.modified_time = souchydir->get_file_modified_time(i);
+			// 	print_line("file sou: " + fi.name);
+
+			// 	file_list.push_back(fi);
+			// }
 		}
 	}
 
@@ -1220,6 +1267,7 @@ void FileSystemDock::_fs_changed() {
 	}
 
 	if (file_list_vb->is_visible()) {
+		_update_file_list(true);
 		_update_file_list(true);
 	}
 
@@ -1523,7 +1571,7 @@ void FileSystemDock::_update_dependencies_after_move(const HashMap<String, Strin
 	// 1) EditorFileSystem contains the old paths/folder structure from before the rename/move.
 	// 2) ResourceLoader can use the new paths without needing to call rescan.
 	Vector<String> remaps;
-	_find_remaps(EditorFileSystem::get_singleton()->get_filesystem(), p_renames, remaps);
+	_find_remaps(EditorFileSystem::get_singleton()->get_filesystemDir(), p_renames, remaps);
 	for (int i = 0; i < remaps.size(); ++i) {
 		// Because we haven't called a rescan yet the found remap might still be an old path itself.
 		String file = p_renames.has(remaps[i]) ? p_renames[remaps[i]] : remaps[i];
@@ -1612,7 +1660,7 @@ void FileSystemDock::_update_favorites_list_after_move(const HashMap<String, Str
 
 void FileSystemDock::_save_scenes_after_move(const HashMap<String, String> &p_renames) const {
 	Vector<String> remaps;
-	_find_remaps(EditorFileSystem::get_singleton()->get_filesystem(), p_renames, remaps);
+	_find_remaps(EditorFileSystem::get_singleton()->get_filesystemDir(), p_renames, remaps);
 	Vector<String> new_filenames;
 
 	for (int i = 0; i < remaps.size(); ++i) {
@@ -2335,6 +2383,7 @@ void FileSystemDock::_search_changed(const String &p_text, const Control *p_from
 void FileSystemDock::_rescan() {
 	_set_scanning_mode();
 	EditorFileSystem::get_singleton()->scan();
+	EditorFileSystem::get_souchySingleton()->scan();
 }
 
 void FileSystemDock::_toggle_split_mode(bool p_active) {
@@ -3303,7 +3352,7 @@ void FileSystemDock::_bind_methods() {
 
 FileSystemDock::FileSystemDock() {
 	singleton = this;
-	set_name("FileSystem");
+	set_name("FileSysteMcdonald");
 	current_path = "res://";
 
 	// `KeyModifierMask::CMD_OR_CTRL | Key::C` conflicts with other editor shortcuts.

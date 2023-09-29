@@ -816,6 +816,7 @@ void EditorNode::_notification(int p_what) {
 			if (!extensions_match || updated_textfile_extensions.size() < textfile_extensions.size()) {
 				textfile_extensions = updated_textfile_extensions;
 				EditorFileSystem::get_singleton()->scan();
+				EditorFileSystem::get_souchySingleton()->scan();
 			}
 
 			_update_update_spinner();
@@ -4510,6 +4511,7 @@ Vector<EditorNodeInitCallback> EditorNode::_init_callbacks;
 void EditorNode::_begin_first_scan() {
 	OS::get_singleton()->benchmark_begin_measure("editor_scan_and_import");
 	EditorFileSystem::get_singleton()->scan();
+	EditorFileSystem::get_souchySingleton()->scan();
 }
 
 Error EditorNode::export_preset(const String &p_preset, const String &p_path, bool p_debug, bool p_pack_only) {
@@ -6932,6 +6934,10 @@ EditorNode::EditorNode() {
 
 	EditorFileSystem *efs = memnew(EditorFileSystem);
 	add_child(efs);
+
+	// make a new system for souchy
+	EditorFileSystem *efssouchy = memnew(EditorFileSystem);
+	add_child(efssouchy);
 
 	// Used for previews.
 	FileDialog::get_icon_func = _file_dialog_get_icon;

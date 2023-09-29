@@ -74,7 +74,7 @@ void EditorDirDialog::reload(const String &p_path) {
 
 	tree->clear();
 	TreeItem *root = tree->create_item();
-	_update_dir(root, EditorFileSystem::get_singleton()->get_filesystem(), p_path);
+	_update_dir(root, EditorFileSystem::get_singleton()->get_filesystemDir(), p_path);
 	_item_collapsed(root);
 	must_reload = false;
 }

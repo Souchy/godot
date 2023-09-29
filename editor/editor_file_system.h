@@ -44,6 +44,8 @@ struct EditorProgressBG;
 class EditorFileSystemDirectory : public Object {
 	GDCLASS(EditorFileSystemDirectory, Object);
 
+	String souchyResPath = "res://";
+
 	String name;
 	uint64_t modified_time;
 	bool verified = false; //used for checking changes
@@ -186,8 +188,14 @@ class EditorFileSystem : public Node {
 	void _save_late_updated_files();
 
 	EditorFileSystemDirectory *filesystem = nullptr;
+	EditorFileSystemDirectory *souchyDir = nullptr;
+
+	String souchyResPath = "res://";
+	DirAccess::AccessType fileAccessType = DirAccess::ACCESS_RESOURCES;
 
 	static EditorFileSystem *singleton;
+	static EditorFileSystem *souchySystem;
+	static List<EditorFileSystem *> systems;
 
 	/* Used for reading the filesystem cache file */
 	struct FileCache {
@@ -300,8 +308,10 @@ protected:
 
 public:
 	static EditorFileSystem *get_singleton() { return singleton; }
+	static EditorFileSystem *get_souchySingleton() { return souchySystem; }
+	static List<EditorFileSystem *> get_systems() { return systems; }
 
-	EditorFileSystemDirectory *get_filesystem();
+	EditorFileSystemDirectory *get_filesystemDir();
 	bool is_scanning() const;
 	bool is_importing() const { return importing; }
 	float get_scanning_progress() const;

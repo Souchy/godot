@@ -477,7 +477,7 @@ void ImportDock::_reimport_attempt() {
 		String imported_with = config->get_value("remap", "importer");
 		if (imported_with != importer_name) {
 			need_restart = true;
-			if (_find_owners(EditorFileSystem::get_singleton()->get_filesystem(), params->paths[i])) {
+			if (_find_owners(EditorFileSystem::get_singleton()->get_filesystemDir(), params->paths[i])) {
 				used_in_resources = true;
 			}
 		}
