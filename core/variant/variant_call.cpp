@@ -2527,10 +2527,10 @@ static void _register_variant_builtin_methods() {
 	_VariantCall::add_variant_constant(Variant::VECTOR3, "INF", Vector3(INFINITY, INFINITY, INFINITY));
 	_VariantCall::add_variant_constant(Variant::VECTOR3, "LEFT", Vector3(-1, 0, 0));
 	_VariantCall::add_variant_constant(Variant::VECTOR3, "RIGHT", Vector3(1, 0, 0));
-	_VariantCall::add_variant_constant(Variant::VECTOR3, "UP", Vector3(0, 1, 0));
-	_VariantCall::add_variant_constant(Variant::VECTOR3, "DOWN", Vector3(0, -1, 0));
-	_VariantCall::add_variant_constant(Variant::VECTOR3, "FORWARD", Vector3(0, 0, -1));
-	_VariantCall::add_variant_constant(Variant::VECTOR3, "BACK", Vector3(0, 0, 1));
+	_VariantCall::add_variant_constant(Variant::VECTOR3, "UP", Vector3(0, 0, 1));
+	_VariantCall::add_variant_constant(Variant::VECTOR3, "DOWN", Vector3(0, 0, -1));
+	_VariantCall::add_variant_constant(Variant::VECTOR3, "FORWARD", Vector3(0, 1, 0));
+	_VariantCall::add_variant_constant(Variant::VECTOR3, "BACK", Vector3(0, -1, 0));
 
 	_VariantCall::add_variant_constant(Variant::VECTOR3, "MODEL_LEFT", Vector3(1, 0, 0));
 	_VariantCall::add_variant_constant(Variant::VECTOR3, "MODEL_RIGHT", Vector3(-1, 0, 0));
@@ -2577,10 +2577,10 @@ static void _register_variant_builtin_methods() {
 	_VariantCall::add_variant_constant(Variant::VECTOR3I, "ONE", Vector3i(1, 1, 1));
 	_VariantCall::add_variant_constant(Variant::VECTOR3I, "LEFT", Vector3i(-1, 0, 0));
 	_VariantCall::add_variant_constant(Variant::VECTOR3I, "RIGHT", Vector3i(1, 0, 0));
-	_VariantCall::add_variant_constant(Variant::VECTOR3I, "UP", Vector3i(0, 1, 0));
-	_VariantCall::add_variant_constant(Variant::VECTOR3I, "DOWN", Vector3i(0, -1, 0));
-	_VariantCall::add_variant_constant(Variant::VECTOR3I, "FORWARD", Vector3i(0, 0, -1));
-	_VariantCall::add_variant_constant(Variant::VECTOR3I, "BACK", Vector3i(0, 0, 1));
+	_VariantCall::add_variant_constant(Variant::VECTOR3I, "UP", Vector3i(0, 0, 1));
+	_VariantCall::add_variant_constant(Variant::VECTOR3I, "DOWN", Vector3i(0, 0, -1));
+	_VariantCall::add_variant_constant(Variant::VECTOR3I, "FORWARD", Vector3i(0, 1, 0));
+	_VariantCall::add_variant_constant(Variant::VECTOR3I, "BACK", Vector3i(0, -1, 0));
 
 	_VariantCall::add_constant(Variant::VECTOR2, "AXIS_X", Vector2::AXIS_X);
 	_VariantCall::add_constant(Variant::VECTOR2, "AXIS_Y", Vector2::AXIS_Y);
