@@ -416,12 +416,12 @@ void FileSystemDock::_update_tree(const Vector<String> &p_uncollapsed_paths, boo
 
 	// Create the remaining of the tree.
 	EditorFileSystemDirectory *fs = EditorFileSystem::get_singleton()->get_filesystemDir();
-	EditorFileSystemDirectory *fss = EditorFileSystem::get_souchySingleton()->get_filesystemDir();
 	_create_tree(root, fs, uncollapsed_paths, p_select_in_favorites, p_unfold_path);
 
-	TreeItem *souroot = tree->create_item();
-	souroot->set_text(0, "SouchyRoot");
-	_create_tree(souroot, fss, uncollapsed_paths, p_select_in_favorites, p_unfold_path);
+	// TreeItem *souroot = tree->create_item();
+	// souroot->set_text(0, "SouchyRoot");
+	EditorFileSystemDirectory *fss = EditorFileSystem::get_souchySingleton()->get_filesystemDir();
+	_create_tree(root, fss, uncollapsed_paths, p_select_in_favorites, p_unfold_path);
 
 	tree->ensure_cursor_is_visible();
 
@@ -861,8 +861,8 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
 		// EditorFileSystem *efs = &(E);
 		_update_file_list_system(p_keep_selection, efs);
 	}
-	// _update_file_list_system(p_keep_selection, EditorFileSystem::get_singleton());
-	// _update_file_list_system(p_keep_selection, EditorFileSystem::get_souchySingleton());
+	_update_file_list_system(p_keep_selection, EditorFileSystem::get_singleton());
+	_update_file_list_system(p_keep_selection, EditorFileSystem::get_souchySingleton());
 }
 
 void FileSystemDock::_update_file_list_system(bool p_keep_selection, EditorFileSystem *efs) {
@@ -980,6 +980,10 @@ void FileSystemDock::_update_file_list_system(bool p_keep_selection, EditorFileS
 			efd = efs->get_filesystem_path(directory);
 		}
 		if (!efd) {
+			directory = efs->souchyResPath;
+			efd = efs->get_filesystem_path(directory);
+		}
+		if (!efd) {
 			return;
 		}
 
@@ -1033,7 +1037,7 @@ void FileSystemDock::_update_file_list_system(bool p_keep_selection, EditorFileS
 				fi.import_broken = !efd->get_file_import_is_valid(i);
 				fi.modified_time = efd->get_file_modified_time(i);
 				file_list.push_back(fi);
-				print_line("file res: " + fi.name);
+				print_line("dock file: " + fi.name);
 			}
 
 			// if (!souchydir) {

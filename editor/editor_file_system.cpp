@@ -799,6 +799,7 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, Ref<DirAc
 			dirs.push_back(f);
 
 		} else {
+			print_line("scan file: ", f);
 			files.push_back(f);
 		}
 	}
@@ -959,6 +960,7 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, Ref<DirAc
 			}
 		}
 
+		print_line("pdir add file: ", fi->file);
 		p_dir->files.push_back(fi);
 		p_progress.update(idx, total);
 	}
@@ -1176,6 +1178,15 @@ void EditorFileSystem::_thread_func_sources(void *_userdata) {
 		efs->_scan_fs_changes(efs->filesystem, sp);
 	}
 	efs->scanning_changes_done = true;
+	if (EditorFileSystem::souchySystem->filesystem) {
+		EditorProgressBG pr("sources2", TTR("ScanSources2"), 1000);
+		ScanProgress sp;
+		sp.progress = &pr;
+		sp.hi = 1;
+		sp.low = 0;
+		efs->_scan_fs_changes(EditorFileSystem::souchySystem->filesystem, sp);
+	}
+	EditorFileSystem::souchySystem->scanning_changes_done = true;
 }
 
 void EditorFileSystem::scan_changes() {
@@ -1462,11 +1473,15 @@ EditorFileSystemDirectory *EditorFileSystem::get_filesystem_path(const String &p
 
 	String f = ProjectSettings::get_singleton()->localize_path(p_path);
 
+	if (!f.ends_with("/")) {
+		f += "/";
+	}
+
 	if (!f.begins_with(souchyResPath)) {
 		return nullptr;
 	}
 
-	f = f.substr(6, f.length());
+	f = f.substr(souchyResPath.length(), f.length());
 	f = f.replace("\\", "/");
 	if (f.is_empty()) {
 		return filesystem;
@@ -2596,11 +2611,12 @@ EditorFileSystem::EditorFileSystem() {
 	bool firstInstance = false;
 	if (singleton == nullptr) {
 		singleton = this;
-		get_systems().push_back(singleton);
+		// get_systems().push_back(singleton);
 		firstInstance = true;
 	}
 	filesystem = memnew(EditorFileSystemDirectory); //like, empty
 	filesystem->parent = nullptr;
+	// filesystem->name = "res://";
 
 	new_filesystem = nullptr;
 
@@ -2618,8 +2634,10 @@ EditorFileSystem::EditorFileSystem() {
 		souchySystem = this;
 		souchySystem->souchyResPath = "C:/Robyn/temp/";
 		souchySystem->fileAccessType = DirAccess::ACCESS_FILESYSTEM;
+		// get_systems().push_back(souchySystem);
+
 		filesystem->souchyResPath = "C:/Robyn/temp/";
-		get_systems().push_back(souchySystem);
+		// filesystem->name = "res://";
 		// souchyDir = memnew(EditorFileSystemDirectory); //like, empty
 		// souchyDir->parent = nullptr;
 		// souchyDir->souchyResPath = "C:/Robyn/temp/";

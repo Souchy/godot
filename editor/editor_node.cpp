@@ -6962,10 +6962,12 @@ EditorNode::EditorNode() {
 
 	EditorFileSystem *efs = memnew(EditorFileSystem);
 	add_child(efs);
+	EditorFileSystem::get_systems().push_back(efs);
 
 	// make a new system for souchy
 	EditorFileSystem *efssouchy = memnew(EditorFileSystem);
 	add_child(efssouchy);
+	EditorFileSystem::get_systems().push_back(efssouchy);
 
 	// Used for previews.
 	FileDialog::get_icon_func = _file_dialog_get_icon;

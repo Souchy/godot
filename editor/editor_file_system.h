@@ -44,7 +44,6 @@ struct EditorProgressBG;
 class EditorFileSystemDirectory : public Object {
 	GDCLASS(EditorFileSystemDirectory, Object);
 
-	String souchyResPath = "res://";
 
 	String name;
 	uint64_t modified_time;
@@ -87,6 +86,7 @@ class EditorFileSystemDirectory : public Object {
 public:
 	String get_name();
 	String get_path() const;
+	String souchyResPath = "res://";
 
 	int get_subdir_count() const;
 	EditorFileSystemDirectory *get_subdir(int p_idx);
@@ -188,9 +188,7 @@ class EditorFileSystem : public Node {
 	void _save_late_updated_files();
 
 	EditorFileSystemDirectory *filesystem = nullptr;
-	EditorFileSystemDirectory *souchyDir = nullptr;
 
-	String souchyResPath = "res://";
 	DirAccess::AccessType fileAccessType = DirAccess::ACCESS_RESOURCES;
 
 	static EditorFileSystem *singleton;
@@ -311,6 +309,7 @@ public:
 	static EditorFileSystem *get_souchySingleton() { return souchySystem; }
 	static List<EditorFileSystem *> get_systems() { return systems; }
 
+	String souchyResPath = "res://";
 	EditorFileSystemDirectory *get_filesystemDir();
 	bool is_scanning() const;
 	bool is_importing() const { return importing; }
