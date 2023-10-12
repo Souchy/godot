@@ -47,7 +47,7 @@
 
 EditorFileSystem *EditorFileSystem::singleton = nullptr;
 EditorFileSystem *EditorFileSystem::souchySystem = nullptr;
-List<EditorFileSystem *> EditorFileSystem::systems;
+Vector<EditorFileSystem *>* EditorFileSystem::systems = memnew(Vector<EditorFileSystem *>);
 //the name is the version, to keep compatibility with different versions of Godot
 #define CACHE_FILE_NAME "filesystem_cache8"
 
@@ -227,7 +227,7 @@ void EditorFileSystem::_scan_filesystem() {
 
 	String project = ProjectSettings::get_singleton()->get_resource_path();
 	// if (this == souchySystem) {
-	// 	project = "C:/Robyn/temp/";
+	// 	project = "C:/test/";
 	// }
 
 	String fscache = EditorPaths::get_singleton()->get_project_settings_dir().path_join(CACHE_FILE_NAME);
@@ -2614,6 +2614,7 @@ EditorFileSystem::EditorFileSystem() {
 		// get_systems().push_back(singleton);
 		firstInstance = true;
 	}
+
 	filesystem = memnew(EditorFileSystemDirectory); //like, empty
 	filesystem->parent = nullptr;
 	// filesystem->name = "res://";
@@ -2632,15 +2633,15 @@ EditorFileSystem::EditorFileSystem() {
 	if (!firstInstance && souchySystem == nullptr) {
 		this->set_name("SouchyFileSystem");
 		souchySystem = this;
-		souchySystem->souchyResPath = "C:/Robyn/temp/";
+		souchySystem->souchyResPath = "C:/test/";
 		souchySystem->fileAccessType = DirAccess::ACCESS_FILESYSTEM;
 		// get_systems().push_back(souchySystem);
 
-		filesystem->souchyResPath = "C:/Robyn/temp/";
+		filesystem->souchyResPath = "C:/test/";
 		// filesystem->name = "res://";
 		// souchyDir = memnew(EditorFileSystemDirectory); //like, empty
 		// souchyDir->parent = nullptr;
-		// souchyDir->souchyResPath = "C:/Robyn/temp/";
+		// souchyDir->souchyResPath = "C:/test/";
 	}
 }
 

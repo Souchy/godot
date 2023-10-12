@@ -193,7 +193,7 @@ class EditorFileSystem : public Node {
 
 	static EditorFileSystem *singleton;
 	static EditorFileSystem *souchySystem;
-	static List<EditorFileSystem *> systems;
+	static Vector<EditorFileSystem *>* systems;
 
 	/* Used for reading the filesystem cache file */
 	struct FileCache {
@@ -307,7 +307,7 @@ protected:
 public:
 	static EditorFileSystem *get_singleton() { return singleton; }
 	static EditorFileSystem *get_souchySingleton() { return souchySystem; }
-	static List<EditorFileSystem *> get_systems() { return systems; }
+	static Vector<EditorFileSystem *>* get_systems() { return systems; }
 
 	String souchyResPath = "res://";
 	EditorFileSystemDirectory *get_filesystemDir();

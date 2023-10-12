@@ -415,6 +415,7 @@ void FileSystemDock::_update_tree(const Vector<String> &p_uncollapsed_paths, boo
 	}
 
 	// Create the remaining of the tree.
+	/*
 	EditorFileSystemDirectory *fs = EditorFileSystem::get_singleton()->get_filesystemDir();
 	_create_tree(root, fs, uncollapsed_paths, p_select_in_favorites, p_unfold_path);
 
@@ -422,6 +423,11 @@ void FileSystemDock::_update_tree(const Vector<String> &p_uncollapsed_paths, boo
 	// souroot->set_text(0, "SouchyRoot");
 	EditorFileSystemDirectory *fss = EditorFileSystem::get_souchySingleton()->get_filesystemDir();
 	_create_tree(root, fss, uncollapsed_paths, p_select_in_favorites, p_unfold_path);
+	*/
+	for(EditorFileSystem* system : *EditorFileSystem::get_systems()) {
+		EditorFileSystemDirectory* fs = system->get_filesystemDir();
+		_create_tree(root, fs, uncollapsed_paths, p_select_in_favorites, p_unfold_path);
+	}
 
 	tree->ensure_cursor_is_visible();
 
@@ -857,12 +863,15 @@ void FileSystemDock::_sort_file_info_list(List<FileSystemDock::FileInfo> &r_file
 }
 
 void FileSystemDock::_update_file_list(bool p_keep_selection) {
-	for (EditorFileSystem *efs : EditorFileSystem::get_systems()) {
-		// EditorFileSystem *efs = &(E);
-		_update_file_list_system(p_keep_selection, efs);
+	// for (EditorFileSystem efs : EditorFileSystem::get_systems()) {
+	// 	// EditorFileSystem *efs = &(E);
+	// 	_update_file_list_system(p_keep_selection, efs);
+	// }
+	// _update_file_list_system(p_keep_selection, EditorFileSystem::get_singleton());
+	// _update_file_list_system(p_keep_selection, EditorFileSystem::get_souchySingleton());
+	for(EditorFileSystem* system : *EditorFileSystem::get_systems()) {
+		_update_file_list_system(p_keep_selection, system);
 	}
-	_update_file_list_system(p_keep_selection, EditorFileSystem::get_singleton());
-	_update_file_list_system(p_keep_selection, EditorFileSystem::get_souchySingleton());
 }
 
 void FileSystemDock::_update_file_list_system(bool p_keep_selection, EditorFileSystem *efs) {
@@ -987,7 +996,7 @@ void FileSystemDock::_update_file_list_system(bool p_keep_selection, EditorFileS
 			return;
 		}
 
-		// String souchypath = "C:/Robyn/temp";
+		// String souchypath = "C:/test";
 		// EditorFileSystemDirectory *souchydir = EditorFileSystem::get_singleton()->get_filesystem_path(souchypath);
 		// EditorFileSystemDirectory *souchydir = sousystem;
 		print_line("Lets look at both folders here: res: ", efd->get_file_count());
@@ -2385,8 +2394,11 @@ void FileSystemDock::_search_changed(const String &p_text, const Control *p_from
 
 void FileSystemDock::_rescan() {
 	_set_scanning_mode();
-	EditorFileSystem::get_singleton()->scan();
-	EditorFileSystem::get_souchySingleton()->scan();
+	// EditorFileSystem::get_singleton()->scan();
+	// EditorFileSystem::get_souchySingleton()->scan();
+	for(EditorFileSystem* system : *EditorFileSystem::get_systems()) {
+		system->scan();
+	}
 }
 
 void FileSystemDock::_toggle_split_mode(bool p_active) {
