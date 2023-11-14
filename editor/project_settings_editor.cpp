@@ -694,6 +694,18 @@ ProjectSettingsEditor::ProjectSettingsEditor(EditorData *p_data) {
 	action_map_editor->connect(SNAME("filter_unfocused"), callable_mp(this, &ProjectSettingsEditor::_input_filter_unfocused));
 	tab_container->add_child(action_map_editor);
 
+	file_system_map_editor = memnew(FileSystemMapEditor);
+	file_system_map_editor->set_name(TTR("File System Map"));
+	// TODO les fonctions pour chaque signal pour les file systèms
+	file_system_map_editor->connect("file_system_added", callable_mp(this, &ProjectSettingsEditor::_action_added));
+	file_system_map_editor->connect("file_system_edited", callable_mp(this, &ProjectSettingsEditor::_action_edited));
+	file_system_map_editor->connect("file_system_removed", callable_mp(this, &ProjectSettingsEditor::_action_removed));
+	file_system_map_editor->connect("file_system_renamed", callable_mp(this, &ProjectSettingsEditor::_action_renamed));
+	file_system_map_editor->connect("file_system_reordered", callable_mp(this, &ProjectSettingsEditor::_action_reordered));
+	file_system_map_editor->connect(SNAME("filter_focused"), callable_mp(this, &ProjectSettingsEditor::_input_filter_focused));
+	file_system_map_editor->connect(SNAME("filter_unfocused"), callable_mp(this, &ProjectSettingsEditor::_input_filter_unfocused));
+	tab_container->add_child(file_system_map_editor);
+
 	localization_editor = memnew(LocalizationEditor);
 	localization_editor->set_name(TTR("Localization"));
 	localization_editor->connect("localization_changed", callable_mp(this, &ProjectSettingsEditor::queue_save));

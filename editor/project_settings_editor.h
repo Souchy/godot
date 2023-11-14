@@ -59,6 +59,7 @@ class ProjectSettingsEditor : public AcceptDialog {
 	EditorAutoloadSettings *autoload_settings = nullptr;
 	ShaderGlobalsEditor *shaders_global_shader_uniforms_editor = nullptr;
 	EditorPluginSettings *plugin_settings = nullptr;
+	FileSystemMapEditor *file_system_map_editor = nullptr;
 
 	LineEdit *search_box = nullptr;
 	CheckButton *advanced = nullptr;
