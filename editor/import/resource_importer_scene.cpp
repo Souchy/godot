@@ -155,13 +155,35 @@ Variant EditorScenePostImportPlugin::get_option_value(const StringName &p_name) 
 	}
 	return Variant();
 }
+
+void EditorScenePostImportPlugin::set_option_value(const StringName &p_name, Variant p_value) const {
+	ERR_FAIL_COND_MSG(current_options == nullptr && current_options_dict == nullptr, "set_option_value called from a function where option values are not available.");
+	ERR_FAIL_COND_MSG(current_options && !current_options->has(p_name), "set_option_value called with unexisting option argument: " + String(p_name));
+	ERR_FAIL_COND_MSG(current_options_dict && !current_options_dict->has(p_name), "set_option_value called with unexisting option argument: " + String(p_name));
+	// if (current_options && current_options->has(p_name)) {
+	// 	// (*current_options)[p_name] = p_value;
+	// 	current_options->insert(p_name, p_value);
+	// }
+	// if (current_options_dict && current_options_dict->has(p_name)) {
+	// 	(*current_options_dict)[p_name] = p_value;
+	// }
+}
+
 void EditorScenePostImportPlugin::add_import_option(const String &p_name, Variant p_default_value) {
 	ERR_FAIL_NULL_MSG(current_option_list, "add_import_option() can only be called from get_import_options().");
 	add_import_option_advanced(p_default_value.get_type(), p_name, p_default_value);
 }
 void EditorScenePostImportPlugin::add_import_option_advanced(Variant::Type p_type, const String &p_name, Variant p_default_value, PropertyHint p_hint, const String &p_hint_string, int p_usage_flags) {
 	ERR_FAIL_NULL_MSG(current_option_list, "add_import_option_advanced() can only be called from get_import_options().");
-	current_option_list->push_back(ResourceImporter::ImportOption(PropertyInfo(p_type, p_name, p_hint, p_hint_string, p_usage_flags), p_default_value));
+	// ResourceImporter::ImportOption *it = current_option_list->front();
+	// while (it) {
+	// 	if (it->option.name == p_name) {
+	// 		break;
+	// 	}
+	// 	it = it->next();
+	// }
+	// current_option_list->erase(it);
+	current_option_list->push_front(ResourceImporter::ImportOption(PropertyInfo(p_type, p_name, p_hint, p_hint_string, p_usage_flags), p_default_value));
 }
 
 void EditorScenePostImportPlugin::get_internal_import_options(InternalImportCategory p_category, List<ResourceImporter::ImportOption> *r_options) {
@@ -216,6 +238,7 @@ void EditorScenePostImportPlugin::post_process(Node *p_scene, const HashMap<Stri
 
 void EditorScenePostImportPlugin::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_option_value", "name"), &EditorScenePostImportPlugin::get_option_value);
+	ClassDB::bind_method(D_METHOD("set_option_value", "name", "value"), &EditorScenePostImportPlugin::set_option_value);
 
 	ClassDB::bind_method(D_METHOD("add_import_option", "name", "value"), &EditorScenePostImportPlugin::add_import_option);
 	ClassDB::bind_method(D_METHOD("add_import_option_advanced", "type", "name", "default_value", "hint", "hint_string", "usage_flags"), &EditorScenePostImportPlugin::add_import_option_advanced, DEFVAL(PROPERTY_HINT_NONE), DEFVAL(""), DEFVAL(PROPERTY_USAGE_DEFAULT));
