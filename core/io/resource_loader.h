@@ -129,6 +129,8 @@ public:
 	static Ref<Resource> _load_complete(LoadToken &p_load_token, Error *r_error);
 
 private:
+	static HashMap<String, String> replacePaths;
+
 	static Ref<Resource> _load_complete_inner(LoadToken &p_load_token, Error *r_error, MutexLock<SafeBinaryMutex<BINARY_MUTEX_TAG>> &p_thread_load_lock);
 
 	static Ref<ResourceFormatLoader> loader[MAX_LOADERS];
@@ -191,6 +193,8 @@ private:
 	static float _dependency_get_progress(const String &p_path);
 
 public:
+	static void set_res_path_replacement(const String &p_path, const String &new_path);
+
 	static Error load_threaded_request(const String &p_path, const String &p_type_hint = "", bool p_use_sub_threads = false, ResourceFormatLoader::CacheMode p_cache_mode = ResourceFormatLoader::CACHE_MODE_REUSE);
 	static ThreadLoadStatus load_threaded_get_status(const String &p_path, float *r_progress = nullptr);
 	static Ref<Resource> load_threaded_get(const String &p_path, Error *r_error = nullptr);

@@ -1404,11 +1404,11 @@ String VisualShaderNodeParticleOutput::generate_code(Shader::Mode p_mode, Visual
 				rotation = 6;
 			}
 			String op;
-			if (shader_type == VisualShader::TYPE_START) {
+			// if (shader_type == VisualShader::TYPE_START) {
 				op = "*=";
-			} else {
-				op = "=";
-			}
+			// } else {
+			// 	op = "=";
+			// }
 
 			if (!p_input_vars[rotation].is_empty()) { // rotation_axis & angle_in_radians
 				String axis;

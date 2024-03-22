@@ -881,8 +881,18 @@ ResourceUID::ID ResourceLoader::get_resource_uid(const String &p_path) {
 	return ResourceUID::INVALID_ID;
 }
 
+void ResourceLoader::set_res_path_replacement(const String &p_path, const String &new_path) {
+	replacePaths[p_path] = new_path;
+}
+
 String ResourceLoader::_path_remap(const String &p_path, bool *r_translation_remapped) {
 	String new_path = p_path;
+
+	HashMap<String, String>::Iterator iter = replacePaths.begin();
+	while(iter) {
+		new_path = new_path.replace_first(iter->key, iter->value);
+		++iter;
+	}
 
 	if (translation_remaps.has(p_path)) {
 		// translation_remaps has the following format:
@@ -1193,3 +1203,5 @@ HashMap<String, Vector<String>> ResourceLoader::translation_remaps;
 HashMap<String, String> ResourceLoader::path_remaps;
 
 ResourceLoaderImport ResourceLoader::import = nullptr;
+
+HashMap<String, String> ResourceLoader::replacePaths;

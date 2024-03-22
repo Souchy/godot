@@ -83,6 +83,8 @@ public:
 	bool has_cached(const String &p_path);
 	bool exists(const String &p_path, const String &p_type_hint = "");
 	ResourceUID::ID get_resource_uid(const String &p_path);
+	void set_res_path_replacement(const String &p_path, const String &new_path);
+
 
 	ResourceLoader() { singleton = this; }
 };
