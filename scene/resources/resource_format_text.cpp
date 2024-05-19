@@ -37,9 +37,12 @@
 #include "core/object/script_language.h"
 #include "core/version.h"
 
-// Version 2: changed names for Basis, AABB, Vectors, etc.
-// Version 3: new string ID for ext/subresources, breaks forward compat.
+// Version 2: Changed names for Basis, AABB, Vectors, etc.
+// Version 3: New string ID for ext/subresources, breaks forward compat.
 #define FORMAT_VERSION 3
+// Version 4: PackedByteArray can be base64 encoded, and PackedVector4Array was added.
+// Parsing only, for forward compat with 4.3+.
+#define FORMAT_VERSION_READABLE 4
 
 #define BINARY_FORMAT_VERSION 4
 
@@ -1050,7 +1053,7 @@ void ResourceLoaderText::open(Ref<FileAccess> p_f, bool p_skip_first_tag) {
 
 	if (tag.fields.has("format")) {
 		int fmt = tag.fields["format"];
-		if (fmt > FORMAT_VERSION) {
+		if (fmt > FORMAT_VERSION_READABLE) {
 			error_text = "Saved with newer format version";
 			_printerr();
 			error = ERR_PARSE_ERROR;
@@ -1541,7 +1544,7 @@ String ResourceLoaderText::recognize_script_class(Ref<FileAccess> p_f) {
 
 	if (tag.fields.has("format")) {
 		int fmt = tag.fields["format"];
-		if (fmt > FORMAT_VERSION) {
+		if (fmt > FORMAT_VERSION_READABLE) {
 			error_text = "Saved with newer format version";
 			_printerr();
 			return "";
@@ -1579,7 +1582,7 @@ String ResourceLoaderText::recognize(Ref<FileAccess> p_f) {
 
 	if (tag.fields.has("format")) {
 		int fmt = tag.fields["format"];
-		if (fmt > FORMAT_VERSION) {
+		if (fmt > FORMAT_VERSION_READABLE) {
 			error_text = "Saved with newer format version";
 			_printerr();
 			return "";
@@ -1791,8 +1794,8 @@ Error ResourceFormatLoaderText::rename_dependencies(const String &p_path, const 
 		err = loader.rename_dependencies(f, p_path, p_map);
 	}
 
-	if (err == OK) {
-		Ref<DirAccess> da = DirAccess::create(DirAccess::ACCESS_RESOURCES);
+	Ref<DirAccess> da = DirAccess::create(DirAccess::ACCESS_RESOURCES);
+	if (err == OK && da->file_exists(p_path + ".depren")) {
 		da->remove(p_path);
 		da->rename(p_path + ".depren", p_path);
 	}
@@ -2290,10 +2293,10 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const Ref<Reso
 			}
 
 			String connstr = "[connection";
-			connstr += " signal=\"" + String(state->get_connection_signal(i)) + "\"";
-			connstr += " from=\"" + String(state->get_connection_source(i).simplified()) + "\"";
-			connstr += " to=\"" + String(state->get_connection_target(i).simplified()) + "\"";
-			connstr += " method=\"" + String(state->get_connection_method(i)) + "\"";
+			connstr += " signal=\"" + String(state->get_connection_signal(i)).c_escape() + "\"";
+			connstr += " from=\"" + String(state->get_connection_source(i).simplified()).c_escape() + "\"";
+			connstr += " to=\"" + String(state->get_connection_target(i).simplified()).c_escape() + "\"";
+			connstr += " method=\"" + String(state->get_connection_method(i)).c_escape() + "\"";
 			int flags = state->get_connection_flags(i);
 			if (flags != Object::CONNECT_PERSIST) {
 				connstr += " flags=" + itos(flags);
@@ -2320,7 +2323,7 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const Ref<Reso
 			if (i == 0) {
 				f->store_line("");
 			}
-			f->store_line("[editable path=\"" + editable_instances[i].operator String() + "\"]");
+			f->store_line("[editable path=\"" + editable_instances[i].operator String().c_escape() + "\"]");
 		}
 	}
 
